@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "yolobun",
-  description: "yolobun: creative, community, music, matcha, vibes.",
+  description: "yolobun: creative, community, music, idek, vibes.",
 };
 
 export default function RootLayout({
