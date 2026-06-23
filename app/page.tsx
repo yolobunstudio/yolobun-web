@@ -17,35 +17,54 @@ const artists = [
     tags: ["dubstep", "bass house", "trap", "melodic"],
     bio: "idk what i'ma do with this collective but let's have some fun lol",
     soundcloud: "https://soundcloud.com/yolobunmusic",
+    image: true,
   },
   {
     name: "artist 02",
     role: "Coming Soon",
     tags: [],
     bio: "A new voice joining the roster. Stay tuned.",
+    image: false,
   },
   {
     name: "artist 03",
     role: "Coming Soon",
     tags: [],
     bio: "Something's brewing. Watch this space.",
+    image: false,
   },
 ];
 
 const STORE_PASSWORD = "yolobun";
 
+// SVG icons
+function InstagramIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+    </svg>
+  );
+}
+
+function TikTokIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.75a4.85 4.85 0 0 1-1.01-.06z"/>
+    </svg>
+  );
+}
+
 export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
   const [letterIndex, setLetterIndex] = useState(words[0].length);
   const [isDeleting, setIsDeleting] = useState(true);
-  const [activeArtist, setActiveArtist] = useState(0);
-  const [dragging, setDragging] = useState(false);
   const [storeOpen, setStoreOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
 
-  const dragStartX = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const navTextRef = useRef<HTMLDivElement>(null);
   const navGlowRef = useRef<HTMLDivElement>(null);
@@ -66,17 +85,6 @@ export default function Home() {
     return () => window.clearTimeout(timeout);
   }, [isDeleting, letterIndex, wordIndex]);
 
-  const prev = () => setActiveArtist((i) => (i - 1 + artists.length) % artists.length);
-  const next = () => setActiveArtist((i) => (i + 1) % artists.length);
-
-  const onDragStart = (x: number) => { setDragging(true); dragStartX.current = x; };
-  const onDragEnd = (x: number) => {
-    if (!dragging) return;
-    setDragging(false);
-    const delta = dragStartX.current - x;
-    if (Math.abs(delta) > 40) delta > 0 ? next() : prev();
-  };
-
   const scrollTo = useCallback((id: string) => {
     const c = containerRef.current;
     if (!c) return;
@@ -92,6 +100,11 @@ export default function Home() {
       scrollTo(id);
     }
   }, [storeOpen, scrollTo]);
+
+  const navLeave = useCallback(() => {
+    if (navGlowRef.current) navGlowRef.current.style.opacity = "0";
+    if (navTextRef.current) navTextRef.current.style.opacity = "0";
+  }, []);
 
   const navMove = useCallback((e: React.MouseEvent) => {
     const c = containerRef.current;
@@ -121,13 +134,7 @@ export default function Home() {
       t.style.webkitMaskImage = m;
       (t.style as unknown as Record<string, string>).maskImage = m;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const navLeave = useCallback(() => {
-    if (navGlowRef.current) navGlowRef.current.style.opacity = "0";
-    if (navTextRef.current) navTextRef.current.style.opacity = "0";
-  }, []);
+  }, [navLeave]);
 
   const submitPw = (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,57 +190,39 @@ export default function Home() {
               <span style={{ marginLeft: 5, display: "inline-block", width: 2, height: "1em", background: "currentColor", animation: "blink 900ms steps(1) infinite" }} aria-hidden="true" />
             </p>
           </div>
-          <div style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.3)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" }}>
-            <span>scroll</span>
-            <span style={{ display: "block", width: 1, height: 24, background: "rgba(255,255,255,0.2)" }} />
-          </div>
         </section>
 
         {/* Team */}
         <section id="team" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 24px", background: "#0a0a0a", scrollSnapAlign: "start" }} aria-label="artists">
           <h2 style={{ margin: "0 0 48px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Roster</h2>
 
-          <div
-            style={{ width: "100%", maxWidth: 384, userSelect: "none", cursor: "grab" }}
-            onMouseDown={(e) => onDragStart(e.clientX)}
-            onMouseUp={(e) => onDragEnd(e.clientX)}
-            onTouchStart={(e) => onDragStart(e.touches[0].clientX)}
-            onTouchEnd={(e) => onDragEnd(e.changedTouches[0].clientX)}
-          >
-            <div style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden" }}>
-              <div style={{ width: "100%", aspectRatio: "1", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
-                {activeArtist === 0 ? (
-                  <Image src={yolobunPortrait} alt="yolobun at a show" style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: "center" }} draggable={false} priority />
-                ) : (
-                  <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artists[activeArtist].name.slice(0, 1).toUpperCase()}</div>
-                )}
-              </div>
-              <div style={{ padding: 24, minHeight: 188 }}>
-                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
-                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artists[activeArtist].name}</h3>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artists[activeArtist].role}</span>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, width: "100%", maxWidth: 900 }}>
+            {artists.map((artist) => (
+              <div key={artist.name} style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden" }}>
+                <div style={{ width: "100%", aspectRatio: "1", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                  {artist.image ? (
+                    <Image src={yolobunPortrait} alt="yolobun at a show" style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: "center" }} draggable={false} priority />
+                  ) : (
+                    <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artist.name.slice(0, 1).toUpperCase()}</div>
+                  )}
                 </div>
-                <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{artists[activeArtist].bio}</p>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {artists[activeArtist].tags.map((tag) => (
-                    <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
-                  ))}
+                <div style={{ padding: 24, display: "flex", flexDirection: "column" }}>
+                  <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
+                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artist.name}</h3>
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artist.role}</span>
+                  </div>
+                  <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{artist.bio}</p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    {artist.tags.map((tag) => (
+                      <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
+                    ))}
+                  </div>
+                  {artist.soundcloud && (
+                    <a href={artist.soundcloud} target="_blank" rel="noreferrer" style={{ marginTop: "auto", paddingTop: 12, display: "inline-flex", fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>SoundCloud ↗</a>
+                  )}
                 </div>
-                {artists[activeArtist].soundcloud && (
-                  <a href={artists[activeArtist].soundcloud} target="_blank" rel="noreferrer" style={{ marginTop: 20, display: "inline-flex", fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>SoundCloud ↗</a>
-                )}
               </div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24 }}>
-            <button onClick={prev} style={{ height: 36, width: 36, borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="previous artist">←</button>
-            <div style={{ display: "flex", gap: 8 }}>
-              {artists.map((_, i) => (
-                <button key={i} onClick={() => setActiveArtist(i)} style={{ height: 6, borderRadius: 999, border: "none", cursor: "pointer", transition: "all 300ms", width: i === activeArtist ? 24 : 6, background: i === activeArtist ? "#fff" : "rgba(255,255,255,0.2)" }} aria-label={`go to artist ${i + 1}`} />
-              ))}
-            </div>
-            <button onClick={next} style={{ height: 36, width: 36, borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="next artist">→</button>
+            ))}
           </div>
         </section>
 
@@ -243,7 +232,15 @@ export default function Home() {
             <h2 style={{ margin: "0 0 32px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>About</h2>
             <p style={{ margin: "0 0 32px", fontSize: "clamp(22px, 4vw, 40px)", fontWeight: 500, lineHeight: 1.2 }}>yolobun is a creative collective built on music, community, and culture.</p>
             <p style={{ margin: "0 0 16px", fontSize: 16, lineHeight: 1.7, color: "rgba(255,255,255,0.5)" }}>a home for artists figuring it out together — releases, shows, and merch made by the people in the room.</p>
-            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.3)" }}>more coming. for now, turn it up.</p>
+            <p style={{ margin: "0 0 40px", fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.3)" }}>more coming. for now, turn it up.</p>
+            <div style={{ display: "flex", gap: 20, justifyContent: "center", alignItems: "center" }}>
+              <a href="https://www.instagram.com/yolobunmusic" target="_blank" rel="noreferrer" aria-label="Instagram" style={{ color: "rgba(255,255,255,0.3)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>
+                <InstagramIcon />
+              </a>
+              <a href="https://www.tiktok.com/@yolobun" target="_blank" rel="noreferrer" aria-label="TikTok" style={{ color: "rgba(255,255,255,0.3)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>
+                <TikTokIcon />
+              </a>
+            </div>
           </div>
         </section>
       </div>
@@ -256,7 +253,6 @@ export default function Home() {
 
           {!unlocked ? (
             <div style={{ width: "100%", maxWidth: 380, textAlign: "center", animation: pwError ? "shake 400ms" : undefined }}>
-              {/* Lock icon */}
               <div style={{ margin: "0 auto 28px", width: 56, position: "relative" }}>
                 <div style={{ width: 34, height: 24, margin: "0 auto -2px", border: "3px solid rgba(255,255,255,0.35)", borderBottom: "none", borderRadius: "18px 18px 0 0" }} />
                 <div style={{ width: 56, height: 46, borderRadius: 12, border: "1px solid rgba(255,255,255,0.2)", background: "#111", display: "grid", placeItems: "center" }}>
