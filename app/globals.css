@@ -13,15 +13,25 @@ body {
   min-width: 320px;
   background: #000;
   color: #fff;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 @keyframes blink {
   50% {
     opacity: 0;
   }
+}
+
+@keyframes shake {
+  10%, 90% { transform: translateX(-1px); }
+  20%, 80% { transform: translateX(2px); }
+  30%, 50%, 70% { transform: translateX(-4px); }
+  40%, 60% { transform: translateX(4px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

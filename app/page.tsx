@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import yolobunPortrait from "./media/henwoo niteharts.jpeg";
 
@@ -32,47 +32,44 @@ const artists = [
   },
 ];
 
+const STORE_PASSWORD = "yolobun";
+
 export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
   const [letterIndex, setLetterIndex] = useState(words[0].length);
   const [isDeleting, setIsDeleting] = useState(true);
   const [activeArtist, setActiveArtist] = useState(0);
   const [dragging, setDragging] = useState(false);
+  const [storeOpen, setStoreOpen] = useState(false);
+  const [unlocked, setUnlocked] = useState(false);
+  const [pwInput, setPwInput] = useState("");
+  const [pwError, setPwError] = useState(false);
+
   const dragStartX = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const navTextRef = useRef<HTMLDivElement>(null);
+  const navGlowRef = useRef<HTMLDivElement>(null);
+
   const typedWord = words[wordIndex].slice(0, letterIndex);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
     const word = words[wordIndex];
     let delay = isDeleting ? deletingDelay : typingDelay;
-
     if (!isDeleting && letterIndex === word.length) delay = holdDelay;
     else if (isDeleting && letterIndex === 0) delay = nextWordDelay;
-
     const timeout = window.setTimeout(() => {
-      if (!isDeleting && letterIndex === word.length) {
-        setIsDeleting(true);
-        return;
-      }
-      if (isDeleting && letterIndex === 0) {
-        setIsDeleting(false);
-        setWordIndex((i) => (i + 1) % words.length);
-        return;
-      }
+      if (!isDeleting && letterIndex === word.length) { setIsDeleting(true); return; }
+      if (isDeleting && letterIndex === 0) { setIsDeleting(false); setWordIndex((i) => (i + 1) % words.length); return; }
       setLetterIndex((i) => i + (isDeleting ? -1 : 1));
     }, delay);
-
     return () => window.clearTimeout(timeout);
   }, [isDeleting, letterIndex, wordIndex]);
 
   const prev = () => setActiveArtist((i) => (i - 1 + artists.length) % artists.length);
   const next = () => setActiveArtist((i) => (i + 1) % artists.length);
 
-  const onDragStart = (x: number) => {
-    setDragging(true);
-    dragStartX.current = x;
-  };
+  const onDragStart = (x: number) => { setDragging(true); dragStartX.current = x; };
   const onDragEnd = (x: number) => {
     if (!dragging) return;
     setDragging(false);
@@ -80,149 +77,215 @@ export default function Home() {
     if (Math.abs(delta) > 40) delta > 0 ? next() : prev();
   };
 
+  const scrollTo = useCallback((id: string) => {
+    const c = containerRef.current;
+    if (!c) return;
+    const el = c.querySelector("#" + id) as HTMLElement | null;
+    if (el) c.scrollTo({ top: el.offsetTop, behavior: "smooth" });
+  }, []);
+
+  const goTo = useCallback((id: string) => {
+    if (storeOpen) {
+      setStoreOpen(false);
+      requestAnimationFrame(() => scrollTo(id));
+    } else {
+      scrollTo(id);
+    }
+  }, [storeOpen, scrollTo]);
+
+  const navMove = useCallback((e: React.MouseEvent) => {
+    const c = containerRef.current;
+    const hero = c?.querySelector("#home") as HTMLElement | null;
+    if (!hero) return;
+    const r = hero.getBoundingClientRect();
+    if (e.clientY < r.top || e.clientY > r.bottom) { navLeave(); return; }
+    let p = (e.clientY - r.top) / Math.max(1, r.bottom - r.top);
+    p = Math.min(1, Math.max(0, p));
+    const fade = 1 - p;
+
+    const g = navGlowRef.current;
+    if (g) {
+      const gr = g.getBoundingClientRect();
+      const gx = e.clientX - gr.left, gy = e.clientY - gr.top;
+      g.style.opacity = String(fade);
+      const radius = 220 * fade;
+      g.style.background = `radial-gradient(circle ${radius}px at ${gx}px ${gy}px, rgba(255,255,255,0.08), rgba(255,255,255,0) 72%)`;
+    }
+    const t = navTextRef.current;
+    if (t) {
+      const tr = t.getBoundingClientRect();
+      const tx = e.clientX - tr.left, ty = e.clientY - tr.top;
+      t.style.opacity = String(fade);
+      const radius = Math.max(18, 95 * fade);
+      const m = `radial-gradient(circle ${radius}px at ${tx}px ${ty}px, #000 0%, #000 45%, transparent 80%)`;
+      t.style.webkitMaskImage = m;
+      (t.style as unknown as Record<string, string>).maskImage = m;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const navLeave = useCallback(() => {
+    if (navGlowRef.current) navGlowRef.current.style.opacity = "0";
+    if (navTextRef.current) navTextRef.current.style.opacity = "0";
+  }, []);
+
+  const submitPw = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (pwInput.trim().toLowerCase() === STORE_PASSWORD) {
+      setUnlocked(true);
+      setPwError(false);
+    } else {
+      setPwError(true);
+    }
+  };
+
   return (
-    <main>
-      {/* Hero */}
-      <section
-        className="relative grid min-h-dvh place-items-center p-6"
-        style={{ scrollSnapAlign: "start" }}
-        aria-label="yolobun landing page"
+    <main style={{ position: "relative", height: "100dvh", overflow: "hidden" }}>
+      {/* Flashlight navbar */}
+      <nav
+        onMouseMove={navMove}
+        onMouseLeave={navLeave}
+        style={{
+          position: "fixed", top: 0, left: 0, right: 0, height: "100dvh",
+          zIndex: 100, background: "transparent", pointerEvents: "none",
+          display: "flex", alignItems: "flex-start", justifyContent: "center",
+          paddingTop: 22, fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+        }}
       >
-        <div className="grid translate-y-[-1vh] place-items-center gap-3.5 text-center">
-          <h1 className="m-0 text-[clamp(56px,11vw,144px)] font-medium leading-[0.9] tracking-normal">
-            yolobun
-          </h1>
-          <p
-            className="m-0 inline-flex min-h-[1.3em] min-w-[10ch] items-center justify-center text-[clamp(18px,3vw,34px)] font-normal leading-[1.3] tracking-normal text-white/70"
-            aria-label="yolobun is creative, community, music, matcha, vibes, coming soon"
+        <div ref={navGlowRef} style={{ position: "absolute", inset: 0, opacity: 0, transition: "opacity 220ms", pointerEvents: "none" }} />
+        <div ref={navTextRef} style={{ position: "relative", display: "flex", gap: 44, opacity: 0, transition: "opacity 220ms", pointerEvents: "auto" }}>
+          {(["home", "about", "team"] as const).map((id) => (
+            <a key={id} onClick={() => goTo(id)} style={{ color: "#fff", fontSize: 12, letterSpacing: "0.25em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>{id}</a>
+          ))}
+          <a onClick={() => setStoreOpen(true)} style={{ color: "#fff", fontSize: 12, letterSpacing: "0.25em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>store</a>
+        </div>
+      </nav>
+
+      {/* Scroll container */}
+      <div
+        ref={containerRef}
+        onMouseMove={navMove}
+        onMouseLeave={navLeave}
+        style={{
+          position: "relative", height: "100dvh", overflowY: "scroll",
+          scrollSnapType: "y proximity", scrollBehavior: "smooth",
+          background: "#000", color: "#fff",
+          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+          WebkitFontSmoothing: "antialiased",
+        }}
+      >
+        {/* Hero */}
+        <section id="home" style={{ position: "relative", display: "grid", placeItems: "center", minHeight: "100dvh", padding: 24, scrollSnapAlign: "start" }} aria-label="yolobun landing page">
+          <div style={{ display: "grid", placeItems: "center", gap: 14, textAlign: "center", transform: "translateY(-1vh)" }}>
+            <h1 style={{ margin: 0, fontSize: "clamp(56px, 11vw, 144px)", fontWeight: 500, lineHeight: 0.9, letterSpacing: "-0.01em" }}>yolobun</h1>
+            <p style={{ margin: 0, display: "inline-flex", alignItems: "center", justifyContent: "center", minHeight: "1.3em", minWidth: "10ch", fontSize: "clamp(18px, 3vw, 34px)", fontWeight: 400, lineHeight: 1.3, color: "rgba(255,255,255,0.7)" }} aria-label="yolobun is creative, community, music, matcha, vibes, coming soon">
+              <span>{typedWord}</span>
+              <span style={{ marginLeft: 5, display: "inline-block", width: 2, height: "1em", background: "currentColor", animation: "blink 900ms steps(1) infinite" }} aria-hidden="true" />
+            </p>
+          </div>
+          <div style={{ position: "absolute", bottom: 32, left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, color: "rgba(255,255,255,0.3)", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase" }}>
+            <span>scroll</span>
+            <span style={{ display: "block", width: 1, height: 24, background: "rgba(255,255,255,0.2)" }} />
+          </div>
+        </section>
+
+        {/* Team */}
+        <section id="team" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 24px", background: "#0a0a0a", scrollSnapAlign: "start" }} aria-label="artists">
+          <h2 style={{ margin: "0 0 48px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Roster</h2>
+
+          <div
+            style={{ width: "100%", maxWidth: 384, userSelect: "none", cursor: "grab" }}
+            onMouseDown={(e) => onDragStart(e.clientX)}
+            onMouseUp={(e) => onDragEnd(e.clientX)}
+            onTouchStart={(e) => onDragStart(e.touches[0].clientX)}
+            onTouchEnd={(e) => onDragEnd(e.changedTouches[0].clientX)}
           >
-            <span>{typedWord}</span>
-            <span
-              className="cursor ml-[5px] inline-block h-[1em] w-0.5 animate-[blink_900ms_steps(1)_infinite] bg-current"
-              aria-hidden="true"
-            />
-          </p>
-        </div>
-        {/* Scroll hint */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 text-xs tracking-widest uppercase">
-          <span>scroll</span>
-          <span className="block h-6 w-px bg-white/20" />
-        </div>
-      </section>
-
-      {/* Artists */}
-      <section
-        className="relative min-h-dvh flex flex-col items-center justify-center px-6 py-20 bg-[#0a0a0a]"
-        style={{ scrollSnapAlign: "start" }}
-        aria-label="artists"
-      >
-        <h2 className="mb-12 text-xs tracking-[0.3em] uppercase text-white/40">The Roster</h2>
-
-        <div
-          className="w-full max-w-sm select-none cursor-grab active:cursor-grabbing"
-          onMouseDown={(e) => onDragStart(e.clientX)}
-          onMouseUp={(e) => onDragEnd(e.clientX)}
-          onTouchStart={(e) => onDragStart(e.touches[0].clientX)}
-          onTouchEnd={(e) => onDragEnd(e.changedTouches[0].clientX)}
-        >
-          {/* Card */}
-          <div className="rounded-2xl border border-white/10 bg-[#111] overflow-hidden">
-            {/* Artist image */}
-            <div className="w-full aspect-square bg-[#1a1a1a] flex items-center justify-center">
-              {activeArtist === 0 ? (
-                <Image
-                  src={yolobunPortrait}
-                  alt="yolobun at a show"
-                  className="h-full w-full object-cover object-center"
-                  priority
-                />
-              ) : (
-                <div className="text-white/10 text-7xl font-bold select-none">
-                  {artists[activeArtist].name.slice(0, 1).toUpperCase()}
+            <div style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden" }}>
+              <div style={{ width: "100%", aspectRatio: "1", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                {activeArtist === 0 ? (
+                  <Image src={yolobunPortrait} alt="yolobun at a show" style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: "center" }} draggable={false} priority />
+                ) : (
+                  <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artists[activeArtist].name.slice(0, 1).toUpperCase()}</div>
+                )}
+              </div>
+              <div style={{ padding: 24, minHeight: 188 }}>
+                <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artists[activeArtist].name}</h3>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artists[activeArtist].role}</span>
                 </div>
-              )}
-            </div>
-            {/* Info */}
-            <div className="p-6">
-              <div className="flex items-baseline justify-between mb-1">
-                <h3 className="text-xl font-medium">{artists[activeArtist].name}</h3>
-                <span className="text-xs text-white/40">{artists[activeArtist].role}</span>
+                <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{artists[activeArtist].bio}</p>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {artists[activeArtist].tags.map((tag) => (
+                    <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
+                  ))}
+                </div>
+                {artists[activeArtist].soundcloud && (
+                  <a href={artists[activeArtist].soundcloud} target="_blank" rel="noreferrer" style={{ marginTop: 20, display: "inline-flex", fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>SoundCloud ↗</a>
+                )}
               </div>
-              <p className="text-sm text-white/50 mb-4">{artists[activeArtist].bio}</p>
-              <div className="flex gap-2 flex-wrap">
-                {artists[activeArtist].tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2 py-0.5 rounded-full border border-white/10 text-xs text-white/40"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-              {artists[activeArtist].soundcloud && (
-                <a
-                  href={artists[activeArtist].soundcloud}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-5 inline-flex text-xs text-white/50 transition-colors hover:text-white"
-                >
-                  SoundCloud ↗
-                </a>
-              )}
             </div>
           </div>
-        </div>
 
-        {/* Controls */}
-        <div className="mt-8 flex items-center gap-6">
-          <button
-            onClick={prev}
-            className="h-9 w-9 rounded-full border border-white/10 text-white/40 hover:border-white/30 hover:text-white/70 transition-colors flex items-center justify-center text-lg"
-            aria-label="previous artist"
-          >
-            ←
-          </button>
-          <div className="flex gap-2">
-            {artists.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveArtist(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === activeArtist ? "w-6 bg-white" : "w-1.5 bg-white/20"
-                }`}
-                aria-label={`go to artist ${i + 1}`}
-              />
-            ))}
+          <div style={{ marginTop: 32, display: "flex", alignItems: "center", gap: 24 }}>
+            <button onClick={prev} style={{ height: 36, width: 36, borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="previous artist">←</button>
+            <div style={{ display: "flex", gap: 8 }}>
+              {artists.map((_, i) => (
+                <button key={i} onClick={() => setActiveArtist(i)} style={{ height: 6, borderRadius: 999, border: "none", cursor: "pointer", transition: "all 300ms", width: i === activeArtist ? 24 : 6, background: i === activeArtist ? "#fff" : "rgba(255,255,255,0.2)" }} aria-label={`go to artist ${i + 1}`} />
+              ))}
+            </div>
+            <button onClick={next} style={{ height: 36, width: 36, borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", background: "transparent", color: "rgba(255,255,255,0.4)", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} aria-label="next artist">→</button>
           </div>
-          <button
-            onClick={next}
-            className="h-9 w-9 rounded-full border border-white/10 text-white/40 hover:border-white/30 hover:text-white/70 transition-colors flex items-center justify-center text-lg"
-            aria-label="next artist"
-          >
-            →
-          </button>
-        </div>
-      </section>
+        </section>
 
-      {/* About */}
-      <section
-        className="relative min-h-dvh flex flex-col items-center justify-center px-6 py-20"
-        style={{ scrollSnapAlign: "start" }}
-        aria-label="about"
-      >
-        <div className="max-w-lg text-center">
-          <h2 className="mb-8 text-xs tracking-[0.3em] uppercase text-white/40">About</h2>
-          <p className="text-[clamp(22px,4vw,40px)] font-medium leading-[1.2] mb-8">
-            yolobun is a creative collective built on music, community, and culture.
-          </p>
-          <p className="text-white/50 text-base leading-relaxed mb-4">
-            some more filler text.
-          </p>
-          <p className="text-white/30 text-sm leading-relaxed">
-            and even more filler text.
-          </p>
+        {/* About */}
+        <section id="about" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 24px", background: "#000", scrollSnapAlign: "start" }} aria-label="about">
+          <div style={{ maxWidth: 512, textAlign: "center" }}>
+            <h2 style={{ margin: "0 0 32px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>About</h2>
+            <p style={{ margin: "0 0 32px", fontSize: "clamp(22px, 4vw, 40px)", fontWeight: 500, lineHeight: 1.2 }}>yolobun is a creative collective built on music, community, and culture.</p>
+            <p style={{ margin: "0 0 16px", fontSize: 16, lineHeight: 1.7, color: "rgba(255,255,255,0.5)" }}>a home for artists figuring it out together — releases, shows, and merch made by the people in the room.</p>
+            <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.3)" }}>more coming. for now, turn it up.</p>
+          </div>
+        </section>
+      </div>
+
+      {/* Store overlay */}
+      {storeOpen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "#000", color: "#fff", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "96px 24px", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+          <button onClick={() => setStoreOpen(false)} style={{ position: "absolute", top: 18, left: 24, background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}>← back</button>
+          <h2 style={{ margin: "0 0 40px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Store</h2>
+
+          {!unlocked ? (
+            <div style={{ width: "100%", maxWidth: 380, textAlign: "center", animation: pwError ? "shake 400ms" : undefined }}>
+              {/* Lock icon */}
+              <div style={{ margin: "0 auto 28px", width: 56, position: "relative" }}>
+                <div style={{ width: 34, height: 24, margin: "0 auto -2px", border: "3px solid rgba(255,255,255,0.35)", borderBottom: "none", borderRadius: "18px 18px 0 0" }} />
+                <div style={{ width: 56, height: 46, borderRadius: 12, border: "1px solid rgba(255,255,255,0.2)", background: "#111", display: "grid", placeItems: "center" }}>
+                  <div style={{ width: 6, height: 6, borderRadius: 999, background: "rgba(255,255,255,0.5)" }} />
+                </div>
+              </div>
+              <p style={{ margin: "0 0 10px", fontSize: "clamp(26px, 5vw, 40px)", fontWeight: 500, lineHeight: 1.1 }}>members only</p>
+              <p style={{ margin: "0 0 28px", fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.45)" }}>merch drops are locked for now. got the password?</p>
+              <form onSubmit={submitPw} style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                <input
+                  type="password"
+                  value={pwInput}
+                  onChange={(e) => { setPwInput(e.target.value); setPwError(false); }}
+                  placeholder="enter password"
+                  autoComplete="off"
+                  style={{ flex: 1, minWidth: 0, height: 46, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "#0c0c0c", color: "#fff", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                />
+                <button type="submit" style={{ height: 46, padding: "0 22px", borderRadius: 10, border: "none", background: "#fff", color: "#000", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>unlock</button>
+              </form>
+              <p style={{ margin: "16px 0 0", minHeight: 18, fontSize: 12, color: pwError ? "rgba(255,120,120,0.9)" : "transparent" }}>nope — that&apos;s not it. try again.</p>
+            </div>
+          ) : (
+            <div style={{ maxWidth: 420, textAlign: "center" }}>
+              <p style={{ margin: "0 0 12px", fontSize: "clamp(26px, 5vw, 40px)", fontWeight: 500, lineHeight: 1.1, color: "#fff" }}>you&apos;re in.</p>
+              <p style={{ margin: 0, fontSize: 15, lineHeight: 1.6, color: "rgba(255,255,255,0.45)" }}>the shop is being built. first drop coming soon — you&apos;ll be the first to know.</p>
+            </div>
+          )}
         </div>
-      </section>
+      )}
     </main>
   );
 }
