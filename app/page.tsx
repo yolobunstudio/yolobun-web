@@ -16,14 +16,20 @@ const artists = [
     role: "founder sorta / producer",
     tags: ["dubstep", "bass house", "trap", "melodic"],
     bio: "idk what i'ma do with this collective but let's have some fun lol",
-    soundcloud: "https://soundcloud.com/yolobunmusic",
+    links: [{ label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" }],
     image: true,
   },
   {
-    name: "artist 02",
-    role: "Coming Soon",
-    tags: [],
-    bio: "A new voice joining the roster. Stay tuned.",
+    name: "nian",
+    role: "artist",
+    tags: ["indie pop", "bedroom pop", "alt r&b"],
+    bio: "maybe your next lowkey niche artist",
+    links: [
+      { label: "SoundCloud", url: "https://soundcloud.com/nian_la" },
+      { label: "Spotify", url: "https://open.spotify.com/artist/3cBfn66CziFcst8xoHF9ZC" },
+      { label: "Instagram", url: "https://www.instagram.com/nian.la/" },
+      { label: "TikTok", url: "https://www.tiktok.com/@itsnotgordon" },
+    ],
     image: false,
   },
   {
@@ -31,6 +37,7 @@ const artists = [
     role: "Coming Soon",
     tags: [],
     bio: "Something's brewing. Watch this space.",
+    links: [],
     image: false,
   },
 ];
@@ -217,8 +224,12 @@ export default function Home() {
                       <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
                     ))}
                   </div>
-                  {artist.soundcloud && (
-                    <a href={artist.soundcloud} target="_blank" rel="noreferrer" style={{ marginTop: "auto", paddingTop: 12, display: "inline-flex", fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>SoundCloud ↗</a>
+                  {artist.links.length > 0 && (
+                    <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", gap: 12, flexWrap: "wrap" }}>
+                      {artist.links.map((link) => (
+                        <a key={link.label} href={link.url} target="_blank" rel="noreferrer" style={{ fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>{link.label} ↗</a>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
