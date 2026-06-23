@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import yolobunPortrait from "./media/henwoo niteharts.jpeg";
+import yolobunPortrait from "./media/henwoo niteharts2.jpg";
+import nianPortrait from "./media/nian.jpg";
 
 const words = ["creative", "community", "music", "idek", "vibes", "coming soon"];
 const typingDelay = 90;
@@ -14,14 +15,14 @@ const artists = [
   {
     name: "yolobun",
     role: "founder sorta / producer",
-    tags: ["dubstep", "bass house", "trap", "melodic"],
-    bio: "idk what i'ma do with this collective but let's have some fun lol",
+    tags: ["dubstep", "bass house", "trap"],
+    bio: "let's have some fun lolol",
     links: [{ label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" }],
     image: true,
   },
   {
     name: "nian",
-    role: "artist",
+    role: "artist / producer",
     tags: ["indie pop", "bedroom pop", "alt r&b"],
     bio: "maybe your next lowkey niche artist",
     links: [
@@ -30,13 +31,13 @@ const artists = [
       { label: "Instagram", url: "https://www.instagram.com/nian.la/" },
       { label: "TikTok", url: "https://www.tiktok.com/@itsnotgordon" },
     ],
-    image: false,
+    image: true,
   },
   {
     name: "artist 03",
-    role: "Coming Soon",
+    role: "artist",
     tags: [],
-    bio: "Something's brewing. Watch this space.",
+    bio: "coming soon",
     links: [],
     image: false,
   },
@@ -228,21 +229,21 @@ export default function Home() {
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, width: "100%", maxWidth: 900 }}>
             {artists.map((artist) => (
-              <div key={artist.name} style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden" }}>
-                <div style={{ width: "100%", aspectRatio: "3/4", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+              <div key={artist.name} style={{ aspectRatio: "3/4", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <div style={{ flex: "1 1 0", minHeight: 0, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                   {artist.image ? (
-                    <Image src={yolobunPortrait} alt="yolobun at a show" style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: "center" }} draggable={false} priority />
+                    <Image src={artist.name === "nian" ? nianPortrait : yolobunPortrait} alt={`${artist.name} photo`} style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center 5%" : "center top" }} draggable={false} priority />
                   ) : (
                     <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artist.name.slice(0, 1).toUpperCase()}</div>
                   )}
                 </div>
-                <div style={{ padding: 24, display: "flex", flexDirection: "column" }}>
+                <div style={{ padding: 24, flexShrink: 0, display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
                     <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artist.name}</h3>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artist.role}</span>
                   </div>
-                  <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{artist.bio}</p>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <p style={{ margin: "0 0 16px", fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.5)", minHeight: "21px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{artist.bio}</p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "nowrap", minHeight: "20px", overflow: "hidden" }}>
                     {artist.tags.map((tag) => (
                       <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
                     ))}
