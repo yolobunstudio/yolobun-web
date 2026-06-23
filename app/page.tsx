@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import yolobunPortrait from "./media/henwoo niteharts.jpeg";
+import yolobunPortrait from "./media/henwoo niteharts2.jpg";
+import nianPortrait from "./media/nian.jpg";
 
 const words = ["creative", "community", "music", "idek", "vibes", "coming soon"];
 const typingDelay = 90;
@@ -14,23 +15,30 @@ const artists = [
   {
     name: "yolobun",
     role: "founder sorta / producer",
-    tags: ["dubstep", "bass house", "trap", "melodic"],
-    bio: "idk what i'ma do with this collective but let's have some fun lol",
-    soundcloud: "https://soundcloud.com/yolobunmusic",
+    tags: ["dubstep", "bass house", "trap"],
+    bio: "let's have some fun lolol",
+    links: [{ label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" }],
     image: true,
   },
   {
-    name: "artist 02",
-    role: "Coming Soon",
-    tags: [],
-    bio: "A new voice joining the roster. Stay tuned.",
-    image: false,
+    name: "nian",
+    role: "artist / producer",
+    tags: ["indie pop", "bedroom pop", "alt r&b"],
+    bio: "maybe your next lowkey niche artist",
+    links: [
+      { label: "SoundCloud", url: "https://soundcloud.com/nian_la" },
+      { label: "Spotify", url: "https://open.spotify.com/artist/3cBfn66CziFcst8xoHF9ZC" },
+      { label: "Instagram", url: "https://www.instagram.com/nian.la/" },
+      { label: "TikTok", url: "https://www.tiktok.com/@itsnotgordon" },
+    ],
+    image: true,
   },
   {
     name: "artist 03",
-    role: "Coming Soon",
+    role: "artist",
     tags: [],
-    bio: "Something's brewing. Watch this space.",
+    bio: "coming soon",
+    links: [],
     image: false,
   },
 ];
@@ -38,6 +46,22 @@ const artists = [
 const STORE_PASSWORD = "yolobun";
 
 // SVG icons
+function SoundCloudIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M1.175 12.225c-.015.132.07.248.2.263l.44.044c.132.015.248-.07.263-.2l.37-3.51-.37-3.48c-.015-.132-.13-.215-.263-.2l-.44.044c-.13.015-.215.13-.2.263zm1.655-.557c-.015.132.07.248.2.263l.44.044c.132.015.248-.07.263-.2l.295-3.182-.295-3.14c-.015-.132-.13-.215-.263-.2l-.44.044c-.13.015-.215.13-.2.263zm1.655.277c-.015.132.07.248.2.263l.44.044c.132.015.248-.07.263-.2l.22-2.905-.22-2.848c-.015-.132-.13-.215-.263-.2l-.44.044c-.13.015-.215.13-.2.263zm1.655-.52c-.015.132.07.248.2.263l.44.044c.132.015.248-.07.263-.2l.145-2.385-.145-2.315c-.015-.132-.13-.215-.263-.2l-.44.044c-.13.015-.215.13-.2.263zM8.8 8.84c-.044 0-.088.015-.125.04-.22-2.56-2.35-4.56-4.965-4.56-1.375 0-2.615.535-3.525 1.4v8.56c0 .44.357.8.8.8h7.815c.44 0 .8-.36.8-.8V9.64c0-.44-.36-.8-.8-.8zm4.8.96c-.308 0-.6.07-.862.19C12.48 7.43 10.46 5.6 8.035 5.6c-.22 0-.44.015-.655.044v9.715h12.02c1.435 0 2.6-1.165 2.6-2.6s-1.165-2.6-2.6-2.6c-.19 0-.375.022-.55.06-.19-1.32-1.325-2.34-2.65-2.34-.058 0-.115.002-.172.006A4.038 4.038 0 0 0 13.6 9.8z"/>
+    </svg>
+  );
+}
+
+function SpotifyIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+    </svg>
+  );
+}
+
 function InstagramIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -55,6 +79,13 @@ function TikTokIcon() {
     </svg>
   );
 }
+
+const platformIcons: Record<string, React.ReactNode> = {
+  SoundCloud: <SoundCloudIcon />,
+  Spotify: <SpotifyIcon />,
+  Instagram: <InstagramIcon />,
+  TikTok: <TikTokIcon />,
+};
 
 export default function Home() {
   const [wordIndex, setWordIndex] = useState(0);
@@ -194,31 +225,37 @@ export default function Home() {
 
         {/* Team */}
         <section id="team" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 24px", background: "#0a0a0a", scrollSnapAlign: "start" }} aria-label="artists">
-          <h2 style={{ margin: "0 0 48px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Roster</h2>
+          <h2 style={{ margin: "0 0 48px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>team</h2>
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, width: "100%", maxWidth: 900 }}>
             {artists.map((artist) => (
-              <div key={artist.name} style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden" }}>
-                <div style={{ width: "100%", aspectRatio: "1", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+              <div key={artist.name} style={{ aspectRatio: "3/4", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <div style={{ flex: "1 1 0", minHeight: 0, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                   {artist.image ? (
-                    <Image src={yolobunPortrait} alt="yolobun at a show" style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: "center" }} draggable={false} priority />
+                    <Image src={artist.name === "nian" ? nianPortrait : yolobunPortrait} alt={`${artist.name} photo`} style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center 5%" : "center top" }} draggable={false} priority />
                   ) : (
                     <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artist.name.slice(0, 1).toUpperCase()}</div>
                   )}
                 </div>
-                <div style={{ padding: 24, display: "flex", flexDirection: "column" }}>
+                <div style={{ padding: 24, flexShrink: 0, display: "flex", flexDirection: "column" }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
                     <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artist.name}</h3>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artist.role}</span>
                   </div>
-                  <p style={{ margin: "0 0 16px", fontSize: 14, color: "rgba(255,255,255,0.5)" }}>{artist.bio}</p>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  <p style={{ margin: "0 0 16px", fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.5)", minHeight: "21px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{artist.bio}</p>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "nowrap", minHeight: "20px", overflow: "hidden" }}>
                     {artist.tags.map((tag) => (
                       <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
                     ))}
                   </div>
-                  {artist.soundcloud && (
-                    <a href={artist.soundcloud} target="_blank" rel="noreferrer" style={{ marginTop: "auto", paddingTop: 12, display: "inline-flex", fontSize: 11, color: "rgba(255,255,255,0.5)", textDecoration: "none" }}>SoundCloud ↗</a>
+                  {artist.links.length > 0 && (
+                    <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", gap: 14 }}>
+                      {artist.links.map((link) => (
+                        <a key={link.label} href={link.url} target="_blank" rel="noreferrer" aria-label={link.label} style={{ color: "rgba(255,255,255,0.4)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}>
+                          {platformIcons[link.label] ?? link.label}
+                        </a>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>
