@@ -34,6 +34,69 @@ body {
   40%, 60% { transform: translateX(4px); }
 }
 
+/* Hide mobile-only elements on desktop */
+@media (min-width: 960px) {
+  .mobile-menu-btn,
+  .mobile-menu-overlay {
+    display: none !important;
+  }
+}
+
+/* Hide desktop-only elements on mobile */
+@media (max-width: 959px) {
+  .flashlight-nav {
+    display: none !important;
+  }
+}
+
+/* Mobile: 3:5, Desktop: 3:4 */
+.roster-card {
+  aspect-ratio: 3/5;
+}
+@media (min-width: 960px) {
+  .roster-card {
+    aspect-ratio: 3/4;
+  }
+}
+
+/* Mobile: horizontal swipe carousel */
+.roster-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  width: 100%;
+  max-width: 900px;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 24px 0 40px;
+  scroll-padding-left: 40px;
+  scrollbar-width: none;
+}
+.roster-grid::-webkit-scrollbar {
+  display: none;
+}
+.roster-grid > * {
+  flex-shrink: 0;
+  width: 82%;
+  scroll-snap-align: start;
+}
+
+/* Desktop: 3-column grid */
+@media (min-width: 960px) {
+  .roster-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    overflow-x: visible;
+    padding: 0;
+    margin: 0;
+  }
+  .roster-grid > * {
+    width: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cursor {
     animation: none;
