@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import { DM_Sans } from "next/font/google";
 import "./globals.css";
+
+const dmSans = DM_Sans({ subsets: ["latin"], weight: "500", variable: "--font-dm-sans" });
 
 export const metadata: Metadata = {
   title: "yolobun",
@@ -13,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="font-sans antialiased">{children}</body>
+      <body className={`font-sans antialiased ${dmSans.variable}`}>{children}</body>
     </html>
   );
 }
