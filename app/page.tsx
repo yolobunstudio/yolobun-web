@@ -17,7 +17,12 @@ const artists = [
     role: "founder sorta / producer",
     tags: ["dubstep", "bass house", "trap"],
     bio: "let's have some fun lolol",
-    links: [{ label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" }],
+    links: [
+      { label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" },
+      { label: "YouTube", url: "https://www.youtube.com/@yolobun" },
+      { label: "TikTok", url: "https://www.tiktok.com/@yolobun" },
+      { label: "TikTok", url: "https://www.tiktok.com/@henwoo" },
+    ],
     image: true,
   },
   {
@@ -72,6 +77,14 @@ function InstagramIcon() {
   );
 }
 
+function YouTubeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+    </svg>
+  );
+}
+
 function TikTokIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -85,6 +98,7 @@ const platformIcons: Record<string, React.ReactNode> = {
   Spotify: <SpotifyIcon />,
   Instagram: <InstagramIcon />,
   TikTok: <TikTokIcon />,
+  YouTube: <YouTubeIcon />,
 };
 
 export default function Home() {
@@ -92,6 +106,7 @@ export default function Home() {
   const [letterIndex, setLetterIndex] = useState(words[0].length);
   const [isDeleting, setIsDeleting] = useState(true);
   const [storeOpen, setStoreOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
@@ -138,6 +153,7 @@ export default function Home() {
   }, []);
 
   const navMove = useCallback((e: React.MouseEvent) => {
+    if (window.innerWidth < 960) return;
     const c = containerRef.current;
     const hero = c?.querySelector("#home") as HTMLElement | null;
     if (!hero) return;
@@ -179,8 +195,44 @@ export default function Home() {
 
   return (
     <main style={{ position: "relative", height: "100dvh", overflow: "hidden" }}>
+      {/* Mobile hamburger */}
+      <button
+        className="mobile-menu-btn"
+        onClick={() => setMenuOpen((o) => !o)}
+        aria-label="Menu"
+        style={{
+          position: "fixed", top: 18, right: 18, zIndex: 200,
+          background: "none", border: "none", cursor: "pointer",
+          display: "flex", flexDirection: "column", gap: 5, padding: 6,
+        }}
+      >
+        <span style={{ display: "block", width: 22, height: 1.5, background: "rgba(255,255,255,0.15)", borderRadius: 1, transition: "transform 200ms, opacity 200ms", transform: menuOpen ? "translateY(6.5px) rotate(45deg)" : "none" }} />
+        <span style={{ display: "block", width: 22, height: 1.5, background: "rgba(255,255,255,0.15)", borderRadius: 1, transition: "opacity 200ms", opacity: menuOpen ? 0 : 1 }} />
+        <span style={{ display: "block", width: 22, height: 1.5, background: "rgba(255,255,255,0.15)", borderRadius: 1, transition: "transform 200ms, opacity 200ms", transform: menuOpen ? "translateY(-6.5px) rotate(-45deg)" : "none" }} />
+      </button>
+
+      {/* Mobile menu overlay */}
+      {menuOpen && (
+        <div
+          className="mobile-menu-overlay"
+          style={{
+            position: "fixed", inset: 0, zIndex: 150,
+            background: "rgba(18,18,18,0.97)",
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+            gap: 40,
+          }}
+          onClick={() => setMenuOpen(false)}
+        >
+          {(["home", "team", "about"] as const).map((id) => (
+            <a key={id} onClick={() => { setMenuOpen(false); goTo(id); }} style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>{id}</a>
+          ))}
+          <a onClick={() => { setMenuOpen(false); setStoreOpen(true); }} style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>store</a>
+        </div>
+      )}
+
       {/* Flashlight navbar */}
       <nav
+        className="flashlight-nav"
         onMouseMove={navMove}
         onMouseLeave={navLeave}
         style={{
@@ -224,20 +276,20 @@ export default function Home() {
         </section>
 
         {/* Team */}
-        <section id="team" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 24px", background: "#0a0a0a", scrollSnapAlign: "start" }} aria-label="artists">
-          <h2 style={{ margin: "0 0 48px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>team</h2>
+        <section id="team" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100dvh", padding: "80px 0", background: "#0a0a0a", scrollSnapAlign: "start" }} aria-label="artists">
+          <h2 style={{ margin: "0 0 48px", padding: "0 24px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>team</h2>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 16, width: "100%", maxWidth: 900 }}>
+          <div className="roster-grid">
             {artists.map((artist) => (
-              <div key={artist.name} style={{ aspectRatio: "3/4", borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-                <div style={{ flex: "1 1 0", minHeight: 0, background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+              <div key={artist.name} className="roster-card" style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+                <div style={{ flex: "1 1 0", minHeight: 0, position: "relative", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
                   {artist.image ? (
-                    <Image src={artist.name === "nian" ? nianPortrait : yolobunPortrait} alt={`${artist.name} photo`} style={{ height: "100%", width: "100%", objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center 5%" : "center top" }} draggable={false} priority />
+                    <Image src={artist.name === "nian" ? nianPortrait : yolobunPortrait} alt={`${artist.name} photo`} fill style={{ objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center 5%" : "center top" }} draggable={false} priority />
                   ) : (
                     <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>{artist.name.slice(0, 1).toUpperCase()}</div>
                   )}
                 </div>
-                <div style={{ padding: 24, flexShrink: 0, display: "flex", flexDirection: "column" }}>
+                <div style={{ padding: 24, flexShrink: 0, display: "flex", flexDirection: "column", minHeight: 170 }}>
                   <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4 }}>
                     <h3 style={{ margin: 0, fontSize: 20, fontWeight: 500 }}>{artist.name}</h3>
                     <span style={{ fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{artist.role}</span>
@@ -245,18 +297,16 @@ export default function Home() {
                   <p style={{ margin: "0 0 16px", fontSize: 14, lineHeight: 1.5, color: "rgba(255,255,255,0.5)", minHeight: "21px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{artist.bio}</p>
                   <div style={{ display: "flex", gap: 8, flexWrap: "nowrap", minHeight: "20px", overflow: "hidden" }}>
                     {artist.tags.map((tag) => (
-                      <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)" }}>{tag}</span>
+                      <span key={tag} style={{ padding: "2px 10px", borderRadius: 999, border: "1px solid rgba(255,255,255,0.1)", fontSize: 11, color: "rgba(255,255,255,0.4)", whiteSpace: "nowrap" }}>{tag}</span>
                     ))}
                   </div>
-                  {artist.links.length > 0 && (
-                    <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", gap: 14 }}>
-                      {artist.links.map((link) => (
-                        <a key={link.label} href={link.url} target="_blank" rel="noreferrer" aria-label={link.label} style={{ color: "rgba(255,255,255,0.4)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}>
-                          {platformIcons[link.label] ?? link.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
+                  <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", gap: 14, minHeight: 16 }}>
+                    {artist.links.map((link) => (
+                      <a key={link.url} href={link.url} target="_blank" rel="noreferrer" aria-label={link.label} style={{ color: "rgba(255,255,255,0.4)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}>
+                        {platformIcons[link.label] ?? link.label}
+                      </a>
+                    ))}
+                  </div>
                 </div>
               </div>
             ))}
