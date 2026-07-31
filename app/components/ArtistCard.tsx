@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { Artist } from "../data/artists";
 import { platformIcons } from "./icons";
-import yolobunPortrait from "../media/henwoo niteharts2.jpg";
+import yolobunPortrait from "../media/yolobun.jpg";
 import nianPortrait from "../media/nian.jpg";
 
 export default function ArtistCard({ artist }: { artist: Artist }) {
@@ -13,7 +13,7 @@ export default function ArtistCard({ artist }: { artist: Artist }) {
             src={artist.name === "nian" ? nianPortrait : yolobunPortrait}
             alt={`${artist.name} photo`}
             fill
-            style={{ objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center 5%" : "center top" }}
+            style={{ objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center center" : "center top" }}
             draggable={false}
             priority
           />

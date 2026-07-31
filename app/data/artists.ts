@@ -16,8 +16,8 @@ export const artists: Artist[] = [
     links: [
       { label: "SoundCloud", url: "https://soundcloud.com/yolobunmusic" },
       { label: "YouTube", url: "https://www.youtube.com/@yolobun" },
+      { label: "Instagram", url: "https://www.instagram.com/yolobunmusic/" },
       { label: "TikTok", url: "https://www.tiktok.com/@yolobun" },
-      { label: "TikTok", url: "https://www.tiktok.com/@henwoo" },
     ],
     image: true,
   },
