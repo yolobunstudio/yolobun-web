@@ -5,8 +5,8 @@ import "./globals.css";
 const dmSans = DM_Sans({ subsets: ["latin"], weight: "500", variable: "--font-dm-sans" });
 
 export const metadata: Metadata = {
-  title: "yolobun",
-  description: "yolobun: creative, community, music, idek, vibes.",
+  title: "yolobun studios",
+  description: "yolobun studios: creative, community, music, idek, vibes.",
 };
 
 export default function RootLayout({

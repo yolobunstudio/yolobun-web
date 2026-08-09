@@ -4,9 +4,51 @@ import { platformIcons } from "./icons";
 import yolobunPortrait from "../media/yolobun.jpg";
 import nianPortrait from "../media/nian.jpg";
 
-export default function ArtistCard({ artist }: { artist: Artist }) {
+export default function ArtistCard({
+  artist,
+  index,
+  isActive,
+  isRevealed,
+  isReturning,
+  onOpen,
+}: {
+  artist: Artist;
+  index: number;
+  isActive: boolean;
+  isRevealed: boolean;
+  isReturning: boolean;
+  onOpen: (origin: DOMRect) => void;
+}) {
+  const previewLinks = artist.links.filter((link) => link.preview);
+
   return (
-    <div className="roster-card" style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <div
+      className={`roster-card${isRevealed ? " roster-card--revealed" : ""}${isActive ? " roster-card--active" : ""}${isReturning ? " roster-card--returning" : ""}`}
+      role="button"
+      tabIndex={0}
+      onClick={(event) => onOpen(event.currentTarget.getBoundingClientRect())}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onOpen(event.currentTarget.getBoundingClientRect());
+        }
+      }}
+      style={{
+        borderRadius: 16,
+        border: "1px solid rgba(255,255,255,0.1)",
+        background: "#111",
+        overflow: "hidden",
+        display: "flex",
+        flexDirection: "column",
+        cursor: "pointer",
+        opacity: isActive ? 0 : isRevealed ? 1 : 0,
+        pointerEvents: isActive ? "none" : "auto",
+        transform: isRevealed ? undefined : "translateY(34px) scale(0.985)",
+        transition: "opacity 620ms ease, border-color 180ms ease, transform 620ms cubic-bezier(0.2, 0.82, 0.16, 1)",
+        animation: isReturning ? "roster-card-return 420ms cubic-bezier(0.2, 0.82, 0.16, 1)" : undefined,
+        transitionDelay: `${index * 90}ms`,
+      }}
+    >
       <div style={{ flex: "1 1 0", minHeight: 0, position: "relative", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
         {artist.image ? (
           <Image
@@ -39,18 +81,19 @@ export default function ArtistCard({ artist }: { artist: Artist }) {
           ))}
         </div>
         <div style={{ marginTop: "auto", paddingTop: 12, display: "flex", gap: 14, minHeight: 16 }}>
-          {artist.links.map((link) => (
+          {previewLinks.map((link) => (
             <a
               key={link.url}
               href={link.url}
               target="_blank"
               rel="noreferrer"
-              aria-label={link.label}
+              aria-label={`${artist.name} ${link.title}`}
+              onClick={(event) => event.stopPropagation()}
               style={{ color: "rgba(255,255,255,0.4)", display: "flex", textDecoration: "none", transition: "color 200ms" }}
               onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")}
               onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
             >
-              {platformIcons[link.label] ?? link.label}
+              {platformIcons[link.platform] ?? link.platform}
             </a>
           ))}
         </div>
