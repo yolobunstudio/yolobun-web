@@ -1,32 +1,33 @@
 import Image from "next/image";
 import type { Artist } from "../data/artists";
 import { platformIcons } from "./icons";
-import yolobunPortrait from "../media/yolobun.jpg";
-import nianPortrait from "../media/nian.jpg";
 
 type ArtistCardProps = {
   artist: Artist;
   index: number;
   onSelect: () => void;
+  onMotionComplete?: () => void;
 };
 
-export default function ArtistCard({ artist, index, onSelect }: ArtistCardProps) {
+export default function ArtistCard({ artist, index, onSelect, onMotionComplete }: ArtistCardProps) {
   return (
     <article
       className="roster-card"
       style={{ "--card-index": index } as React.CSSProperties}
+      onAnimationEnd={(event) => {
+        if (event.target === event.currentTarget) onMotionComplete?.();
+      }}
     >
       <button className="roster-card__trigger" type="button" onClick={onSelect} aria-label={`View ${artist.name}`} />
       <div style={{ flex: "1 1 0", minHeight: 0, position: "relative", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
         {artist.image ? (
           <Image
-            src={artist.name === "nian" ? nianPortrait : yolobunPortrait}
+            src={artist.image.src}
             alt={`${artist.name} photo`}
             fill
             sizes="(min-width: 960px) 300px, 82vw"
-            style={{ objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center center" : "center top" }}
+            style={{ objectFit: "cover", objectPosition: artist.image.position }}
             draggable={false}
-            priority
           />
         ) : (
           <div style={{ color: "rgba(255,255,255,0.1)", fontSize: 72, fontWeight: 700 }}>
@@ -57,9 +58,7 @@ export default function ArtistCard({ artist, index, onSelect }: ArtistCardProps)
               target="_blank"
               rel="noreferrer"
               aria-label={link.label}
-              style={{ color: "rgba(255,255,255,0.4)", display: "flex", textDecoration: "none", transition: "color 200ms" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.9)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.4)")}
+              className="roster-card__link"
             >
               {platformIcons[link.label] ?? link.label}
             </a>

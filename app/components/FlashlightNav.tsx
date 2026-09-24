@@ -62,10 +62,10 @@ export default function FlashlightNav({ goTo, onStoreOpen, containerRef }: Props
     >
       <div ref={navGlowRef} style={{ position: "absolute", inset: 0, opacity: 0, transition: "opacity 220ms", pointerEvents: "none" }} />
       <div ref={navTextRef} style={{ position: "relative", display: "flex", gap: 44, opacity: 0, transition: "opacity 220ms", pointerEvents: "auto" }}>
-        {(["home", "about", "team"] as const).map((id) => (
-          <a key={id} onClick={() => goTo(id)} style={{ color: "#fff", fontSize: 12, letterSpacing: "0.25em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>{id}</a>
+        {(["home", "team", "about"] as const).map((id) => (
+          <button key={id} type="button" className="nav-action" onClick={() => goTo(id)}>{id}</button>
         ))}
-        <a onClick={onStoreOpen} style={{ color: "#fff", fontSize: 12, letterSpacing: "0.25em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>store</a>
+        <button type="button" className="nav-action" onClick={onStoreOpen}>store</button>
       </div>
     </nav>
   );

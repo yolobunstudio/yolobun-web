@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const STORE_PASSWORD = "yolobun";
 
@@ -13,6 +13,14 @@ export default function StoreOverlay({ onClose }: Props) {
   const [pwInput, setPwInput] = useState("");
   const [pwError, setPwError] = useState(false);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
   const submitPw = (e: React.FormEvent) => {
     e.preventDefault();
     if (pwInput.trim().toLowerCase() === STORE_PASSWORD) {
@@ -24,9 +32,9 @@ export default function StoreOverlay({ onClose }: Props) {
   };
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 90, background: "#000", color: "#fff", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "96px 24px", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
-      <button onClick={onClose} style={{ position: "absolute", top: 18, left: 24, background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}>← back</button>
-      <h2 style={{ margin: "0 0 40px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Store</h2>
+    <div role="dialog" aria-modal="true" aria-labelledby="store-title" style={{ position: "fixed", inset: 0, zIndex: 90, background: "#000", color: "#fff", overflowY: "auto", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "96px 24px", fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif" }}>
+      <button type="button" onClick={onClose} style={{ position: "absolute", top: 18, left: 24, background: "transparent", border: "none", color: "rgba(255,255,255,0.45)", fontSize: 12, letterSpacing: "0.15em", textTransform: "uppercase", cursor: "pointer" }}>← back</button>
+      <h2 id="store-title" style={{ margin: "0 0 40px", fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(255,255,255,0.4)" }}>The Store</h2>
 
       {!unlocked ? (
         <div style={{ width: "100%", maxWidth: 380, textAlign: "center", animation: pwError ? "shake 400ms" : undefined }}>
@@ -45,11 +53,13 @@ export default function StoreOverlay({ onClose }: Props) {
               onChange={(e) => { setPwInput(e.target.value); setPwError(false); }}
               placeholder="enter password"
               autoComplete="off"
+              autoFocus
+              aria-label="Store password"
               style={{ flex: 1, minWidth: 0, height: 46, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "#0c0c0c", color: "#fff", fontSize: 14, fontFamily: "inherit", outline: "none" }}
             />
             <button type="submit" style={{ height: 46, padding: "0 22px", borderRadius: 10, border: "none", background: "#fff", color: "#000", fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}>unlock</button>
           </form>
-          <p style={{ margin: "16px 0 0", minHeight: 18, fontSize: 12, color: pwError ? "rgba(255,120,120,0.9)" : "transparent" }}>nope — that&apos;s not it. try again.</p>
+          <p aria-live="polite" style={{ margin: "16px 0 0", minHeight: 18, fontSize: 12, color: pwError ? "rgba(255,120,120,0.9)" : "transparent" }}>nope — that&apos;s not it. try again.</p>
         </div>
       ) : (
         <div style={{ maxWidth: 420, textAlign: "center" }}>

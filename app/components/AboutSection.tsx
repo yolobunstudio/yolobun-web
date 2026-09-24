@@ -9,10 +9,10 @@ export default function AboutSection() {
         <p style={{ margin: "0 0 16px", fontSize: 16, lineHeight: 1.7, color: "rgba(255,255,255,0.5)" }}>a home for artists figuring it out together — releases, shows, and merch made by the people in the room.</p>
         <p style={{ margin: "0 0 40px", fontSize: 14, lineHeight: 1.7, color: "rgba(255,255,255,0.3)" }}>more coming. for now, turn it up.</p>
         <div style={{ display: "flex", gap: 20, justifyContent: "center", alignItems: "center" }}>
-          <a href="https://www.instagram.com/yolobunmusic" target="_blank" rel="noreferrer" aria-label="Instagram" style={{ color: "rgba(255,255,255,0.3)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>
+          <a className="social-link" href="https://www.instagram.com/yolobunmusic" target="_blank" rel="noreferrer" aria-label="Instagram">
             <InstagramIcon />
           </a>
-          <a href="https://www.tiktok.com/@yolobun" target="_blank" rel="noreferrer" aria-label="TikTok" style={{ color: "rgba(255,255,255,0.3)", display: "flex", textDecoration: "none", transition: "color 200ms" }} onMouseEnter={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.7)")} onMouseLeave={(e) => (e.currentTarget.style.color = "rgba(255,255,255,0.3)")}>
+          <a className="social-link" href="https://www.tiktok.com/@yolobun" target="_blank" rel="noreferrer" aria-label="TikTok">
             <TikTokIcon />
           </a>
         </div>

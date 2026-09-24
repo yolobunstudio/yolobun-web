@@ -12,8 +12,11 @@ export default function MobileMenu({ open, onToggle, goTo, onStoreOpen }: Props)
     <>
       <button
         className="mobile-menu-btn"
+        type="button"
         onClick={onToggle}
-        aria-label="Menu"
+        aria-label={open ? "Close menu" : "Open menu"}
+        aria-expanded={open}
+        aria-controls="mobile-navigation"
         style={{
           position: "fixed", top: 18, right: 18, zIndex: 200,
           background: "none", border: "none", cursor: "pointer",
@@ -36,10 +39,12 @@ export default function MobileMenu({ open, onToggle, goTo, onStoreOpen }: Props)
           }}
           onClick={onToggle}
         >
-          {(["home", "team", "about"] as const).map((id) => (
-            <a key={id} onClick={() => { onToggle(); goTo(id); }} style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>{id}</a>
-          ))}
-          <a onClick={() => { onToggle(); onStoreOpen(); }} style={{ color: "rgba(255,255,255,0.6)", fontSize: 13, letterSpacing: "0.3em", textTransform: "uppercase", cursor: "pointer", textDecoration: "none" }}>store</a>
+          <nav id="mobile-navigation" aria-label="Mobile navigation" className="mobile-menu-links" onClick={(event) => event.stopPropagation()}>
+            {(["home", "team", "about"] as const).map((id) => (
+              <button key={id} type="button" className="nav-action" onClick={() => { onToggle(); goTo(id); }}>{id}</button>
+            ))}
+            <button type="button" className="nav-action" onClick={() => { onToggle(); onStoreOpen(); }}>store</button>
+          </nav>
         </div>
       )}
     </>

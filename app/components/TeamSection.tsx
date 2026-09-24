@@ -1,44 +1,46 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
-import { artists, type Artist } from "../data/artists";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { artists } from "../data/artists";
 import ArtistCard from "./ArtistCard";
 import { platformIcons } from "./icons";
-import yolobunPortrait from "../media/yolobun.jpg";
-import nianPortrait from "../media/nian.jpg";
 
 type View = "roster" | "leaving" | "detail" | "closing" | "returning";
 
-const portraitFor = (artist: Artist) =>
-  artist.name === "nian" ? nianPortrait : yolobunPortrait;
-
 export default function TeamSection() {
-  const [selected, setSelected] = useState<Artist | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [view, setView] = useState<View>("roster");
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const teamRef = useRef<HTMLElement>(null);
+  const returnFocusIndex = useRef<number | null>(null);
+  const selected = selectedIndex === null ? null : artists[selectedIndex];
 
-  useEffect(() => () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-  }, []);
-
-  const openArtist = (artist: Artist) => {
+  const openArtist = (index: number) => {
     if (view !== "roster") return;
-    setSelected(artist);
+    setSelectedIndex(index);
+    returnFocusIndex.current = index;
     setView("leaving");
-    timerRef.current = setTimeout(() => setView("detail"), 560);
   };
 
-  const closeArtist = () => {
-    if (view !== "detail") return;
-    setView("closing");
-    timerRef.current = setTimeout(() => {
+  const closeArtist = useCallback(() => {
+    setView((current) => current === "detail" ? "closing" : current);
+  }, []);
+
+  const finishRosterMotion = () => {
+    if (view === "leaving") {
+      setView("detail");
+      return;
+    }
+    if (view === "returning") {
+      setSelectedIndex(null);
+      setView("roster");
+    }
+  };
+
+  const finishDetailMotion = (event: React.AnimationEvent<HTMLElement>) => {
+    if (event.target === event.currentTarget && view === "closing") {
       setView("returning");
-      timerRef.current = setTimeout(() => {
-        setSelected(null);
-        setView("roster");
-      }, 650);
-    }, 360);
+    }
   };
 
   useEffect(() => {
@@ -48,12 +50,22 @@ export default function TeamSection() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, [closeArtist, view]);
+
+  useEffect(() => {
+    if (view !== "roster" || returnFocusIndex.current === null) return;
+    const index = returnFocusIndex.current;
+    returnFocusIndex.current = null;
+    requestAnimationFrame(() => {
+      const triggers = teamRef.current?.querySelectorAll<HTMLButtonElement>(".roster-card__trigger");
+      triggers?.[index]?.focus();
+    });
   }, [view]);
 
   const showCards = view === "roster" || view === "leaving" || view === "returning";
 
   return (
-    <section id="team" className="team-section" aria-label="artists">
+    <section ref={teamRef} id="team" className="team-section" aria-label="artists">
       <div className="team-stage">
         {showCards && (
           <div className={`team-roster-view team-roster-view--${view}`}>
@@ -64,7 +76,8 @@ export default function TeamSection() {
                   key={artist.name}
                   artist={artist}
                   index={index}
-                  onSelect={() => openArtist(artist)}
+                  onSelect={() => openArtist(index)}
+                  onMotionComplete={index === 0 ? finishRosterMotion : undefined}
                 />
               ))}
             </div>
@@ -72,26 +85,29 @@ export default function TeamSection() {
         )}
 
         {selected && (view === "detail" || view === "closing") && (
-          <article className={`artist-detail artist-detail--${view}`} aria-label={`${selected.name} details`}>
+          <article
+            className={`artist-detail artist-detail--${view}`}
+            aria-label={`${selected.name} details`}
+            onAnimationEnd={finishDetailMotion}
+          >
             <div className="artist-detail__image">
               {selected.image ? (
                 <Image
-                  src={portraitFor(selected)}
+                  src={selected.image.src}
                   alt={`${selected.name} photo`}
                   fill
                   sizes="(min-width: 960px) 56vw, 100vw"
-                  style={{ objectFit: "cover", objectPosition: selected.name === "yolobun" ? "center center" : "center top" }}
-                  priority
+                  style={{ objectFit: "cover", objectPosition: selected.image.position }}
                 />
               ) : (
                 <span className="artist-detail__placeholder" aria-hidden="true">{selected.name.slice(0, 1).toUpperCase()}</span>
               )}
               <div className="artist-detail__image-shade" />
-              <span className="artist-detail__count">0{artists.indexOf(selected) + 1} / 0{artists.length}</span>
+              <span className="artist-detail__count">0{(selectedIndex ?? 0) + 1} / 0{artists.length}</span>
             </div>
 
             <div className="artist-detail__info">
-              <button className="artist-detail__close" type="button" onClick={closeArtist} aria-label="Close artist details">
+              <button className="artist-detail__close" type="button" onClick={closeArtist} aria-label="Close artist details" autoFocus>
                 <span />
                 <span />
               </button>

@@ -1,10 +1,17 @@
+import type { StaticImageData } from "next/image";
+import nianPortrait from "../media/nian.jpg";
+import yolobunPortrait from "../media/yolobun.jpg";
+
 export type Artist = {
   name: string;
   role: string;
   tags: string[];
   bio: string;
   links: { label: string; url: string }[];
-  image: boolean;
+  image?: {
+    src: StaticImageData;
+    position: string;
+  };
 };
 
 export const artists: Artist[] = [
@@ -19,7 +26,7 @@ export const artists: Artist[] = [
       { label: "Instagram", url: "https://www.instagram.com/yolobunmusic/" },
       { label: "TikTok", url: "https://www.tiktok.com/@yolobun" },
     ],
-    image: true,
+    image: { src: yolobunPortrait, position: "center center" },
   },
   {
     name: "nian",
@@ -32,7 +39,7 @@ export const artists: Artist[] = [
       { label: "Instagram", url: "https://www.instagram.com/nian.la/" },
       { label: "TikTok", url: "https://www.tiktok.com/@itsnotgordon" },
     ],
-    image: true,
+    image: { src: nianPortrait, position: "center top" },
   },
   {
     name: "artist 03",
@@ -40,6 +47,5 @@ export const artists: Artist[] = [
     tags: [],
     bio: "coming soon",
     links: [],
-    image: false,
   },
 ];
