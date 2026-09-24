@@ -84,6 +84,11 @@ body {
   z-index: 1;
 }
 
+.about-accent {
+  color: #a9a2ff;
+  font-style: italic;
+}
+
 ::-webkit-scrollbar {
   width: 0;
   height: 0;
@@ -202,10 +207,15 @@ input {
 }
 
 /* Mobile: 3:5, Desktop: 3:4 */
-.roster-card {
+.roster-card-motion {
   aspect-ratio: 3/5;
+  min-width: 0;
+}
+
+.roster-card {
   box-sizing: border-box;
-  height: auto;
+  width: 100%;
+  height: 100%;
   min-width: 0;
   border-radius: 16px;
   border: 1px solid rgba(255,255,255,0.1);
@@ -223,7 +233,7 @@ input {
 .roster-card:hover,
 .roster-card:has(.roster-card__trigger:focus-visible) {
   border-color: rgba(255, 255, 255, 0.3);
-  transform: translateY(-6px);
+  transform: translateZ(0) scale(1.01);
 }
 
 .roster-card__trigger {
@@ -255,46 +265,47 @@ input {
   color: rgba(255, 255, 255, 0.9);
 }
 
-.team-roster-view--leaving .roster-card {
-  animation: cards-accelerate-out 560ms cubic-bezier(0.72, 0, 1, 0.42) both;
+.team-roster-view--leaving .roster-card-motion {
+  animation: cards-log-out 560ms cubic-bezier(0.76, 0, 1, 0.38) both;
+  animation-timing-function: linear(0, 0.037 10%, 0.077 20%, 0.123 30%, 0.175 40%, 0.235 50%, 0.307 60%, 0.396 70%, 0.513 80%, 0.682 90%, 0.809 95%, 0.912 98%, 1);
   animation-delay: calc((2 - var(--card-index)) * 70ms);
   pointer-events: none;
+  will-change: transform;
+}
+
+.team-roster-view--leaving .roster-card {
+  animation: card-conveyor-drop 340ms cubic-bezier(0.2, 0.72, 0.28, 1) both;
+  animation-delay: calc((2 - var(--card-index)) * 70ms);
+  will-change: translate;
 }
 
 .team-roster-view--leaving .team-eyebrow {
   animation: fade-up 240ms ease both;
 }
 
-.team-roster-view--returning .roster-card {
+.team-roster-view--returning .roster-card-motion {
   animation: cards-return 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
   animation-delay: calc((2 - var(--card-index)) * 55ms);
+  will-change: transform;
 }
 
 .team-roster-view--returning .team-eyebrow {
   animation: fade-in 500ms 180ms ease both;
 }
 
-@keyframes cards-accelerate-out {
-  0% {
-    transform: translate(0, 0) rotate(0);
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.22, 0.65, 0.3, 1);
-  }
-  12% {
-    transform: translate(0.15vw, 8px) rotate(0.05deg);
-    opacity: 1;
-  }
-  24% {
-    transform: translate(1.8vw, 20px) rotate(0.25deg);
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.72, 0, 1, 0.42);
-  }
-  100% { transform: translate(125vw, 20px) rotate(5deg); opacity: 0; }
+@keyframes cards-log-out {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(125vw, 0, 0); }
+}
+
+@keyframes card-conveyor-drop {
+  from { translate: 0 0; }
+  to { translate: 0 20px; }
 }
 
 @keyframes cards-return {
-  0% { transform: translateX(125vw) rotate(5deg); opacity: 0; }
-  100% { transform: translateX(0) rotate(0); opacity: 1; }
+  0% { transform: translate3d(125vw, 0, 0); opacity: 0; }
+  100% { transform: translate3d(0, 0, 0); opacity: 1; }
 }
 
 @keyframes fade-up {
@@ -480,7 +491,7 @@ input {
 .artist-detail__links a:focus-visible { color: #fff; }
 
 @media (min-width: 960px) {
-  .roster-card {
+  .roster-card-motion {
     aspect-ratio: 3/4;
   }
 }
@@ -556,8 +567,9 @@ input {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .team-roster-view--leaving .roster-card-motion,
   .team-roster-view--leaving .roster-card,
-  .team-roster-view--returning .roster-card,
+  .team-roster-view--returning .roster-card-motion,
   .team-roster-view--leaving .team-eyebrow,
   .team-roster-view--returning .team-eyebrow,
   .artist-detail--detail,
