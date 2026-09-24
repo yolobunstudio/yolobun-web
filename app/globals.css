@@ -49,13 +49,296 @@ body {
   }
 }
 
+.team-section {
+  position: relative;
+  min-height: 100dvh;
+  padding: 80px 0;
+  background: #0a0a0a;
+  scroll-snap-align: start;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.team-stage {
+  position: relative;
+  width: 100%;
+  min-height: min(72dvh, 760px);
+  display: grid;
+  place-items: center;
+}
+
+.team-roster-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-eyebrow {
+  margin: 0 0 48px;
+  padding: 0 24px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.4);
+}
+
 /* Mobile: 3:5, Desktop: 3:4 */
 .roster-card {
   aspect-ratio: 3/5;
   box-sizing: border-box;
   height: auto;
   min-width: 0;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #111;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  transform: translateZ(0);
+  transition: border-color 220ms ease, transform 220ms ease;
 }
+
+.roster-card:hover,
+.roster-card:has(.roster-card__trigger:focus-visible) {
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-6px);
+}
+
+.roster-card__trigger {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.roster-card__trigger:focus-visible { outline: none; }
+
+.roster-card a {
+  position: relative;
+  z-index: 2;
+}
+
+.team-roster-view--leaving .roster-card {
+  animation: cards-accelerate-out 560ms cubic-bezier(0.72, 0, 1, 0.42) both;
+  animation-delay: calc((2 - var(--card-index)) * 70ms);
+  pointer-events: none;
+}
+
+.team-roster-view--leaving .team-eyebrow {
+  animation: fade-up 240ms ease both;
+}
+
+.team-roster-view--returning .roster-card {
+  animation: cards-return 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc((2 - var(--card-index)) * 55ms);
+}
+
+.team-roster-view--returning .team-eyebrow {
+  animation: fade-in 500ms 180ms ease both;
+}
+
+@keyframes cards-accelerate-out {
+  0% { transform: translateX(0) rotate(0); opacity: 1; }
+  26% { transform: translateX(-18px) rotate(-0.4deg); opacity: 1; }
+  100% { transform: translateX(125vw) rotate(5deg); opacity: 0; }
+}
+
+@keyframes cards-return {
+  0% { transform: translateX(125vw) rotate(5deg); opacity: 0; }
+  100% { transform: translateX(0) rotate(0); opacity: 1; }
+}
+
+@keyframes fade-up {
+  to { transform: translateY(-12px); opacity: 0; }
+}
+
+@keyframes fade-in {
+  from { transform: translateY(-12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.artist-detail {
+  position: absolute;
+  inset: 0;
+  width: min(1180px, calc(100% - 64px));
+  margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(340px, 0.82fr);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 18px;
+  background: #0e0e0e;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.46);
+}
+
+.artist-detail--detail {
+  animation: detail-enter 620ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.artist-detail--closing {
+  animation: detail-exit 360ms cubic-bezier(0.7, 0, 0.84, 0) both;
+}
+
+@keyframes detail-enter {
+  from { transform: translateX(-115%); }
+  to { transform: translateX(0); }
+}
+
+@keyframes detail-exit {
+  from { transform: translateX(0); }
+  to { transform: translateX(-115%); }
+}
+
+.artist-detail__image {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  background: #181818;
+}
+
+.artist-detail__placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(7rem, 18vw, 15rem);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.07);
+}
+
+.artist-detail__image-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.28)), linear-gradient(0deg, rgba(0,0,0,0.24), transparent 35%);
+  pointer-events: none;
+}
+
+.artist-detail__count {
+  position: absolute;
+  left: 28px;
+  bottom: 24px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 255, 255, 0.68);
+}
+
+.artist-detail__info {
+  position: relative;
+  padding: clamp(42px, 5vw, 76px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.artist-detail__close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 200ms ease, transform 240ms ease;
+}
+
+.artist-detail__close:hover,
+.artist-detail__close:focus-visible {
+  border-color: rgba(255,255,255,0.65);
+  transform: rotate(90deg);
+  outline: none;
+}
+
+.artist-detail__close span {
+  position: absolute;
+  top: 20px;
+  left: 12px;
+  width: 16px;
+  height: 1px;
+  background: rgba(255,255,255,0.8);
+  transform: rotate(45deg);
+}
+
+.artist-detail__close span:last-child { transform: rotate(-45deg); }
+
+.artist-detail__role,
+.artist-detail__meta > span {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.artist-detail h3 {
+  margin: 16px 0 18px;
+  font-size: clamp(3.4rem, 6vw, 6.5rem);
+  font-weight: 450;
+  line-height: 0.9;
+  letter-spacing: -0.07em;
+}
+
+.artist-detail__bio {
+  margin: 0;
+  max-width: 34ch;
+  font-size: clamp(1rem, 1.4vw, 1.25rem);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.artist-detail__meta {
+  margin-top: clamp(34px, 6vh, 64px);
+  padding-top: 24px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.artist-detail__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.artist-detail__tags span {
+  padding: 6px 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.62);
+}
+
+.artist-detail__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.artist-detail__links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.5);
+  font-size: 12px;
+  text-decoration: none;
+  transition: color 180ms ease;
+}
+
+.artist-detail__links a:hover,
+.artist-detail__links a:focus-visible { color: #fff; }
+
 @media (min-width: 960px) {
   .roster-card {
     aspect-ratio: 3/4;
@@ -102,8 +385,45 @@ body {
   }
 }
 
+@media (max-width: 959px) {
+  .team-stage { min-height: calc(100dvh - 160px); }
+
+  .artist-detail {
+    inset: 0 20px;
+    width: auto;
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(280px, 55%) 1fr;
+  }
+
+  .artist-detail__info {
+    justify-content: flex-start;
+    padding: 32px 28px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-left: 0;
+    overflow-y: auto;
+  }
+
+  .artist-detail h3 {
+    margin: 10px 0 12px;
+    font-size: clamp(2.8rem, 15vw, 5rem);
+  }
+
+  .artist-detail__meta { margin-top: 24px; }
+  .artist-detail__links { margin-top: 22px; padding-bottom: 8px; }
+  .artist-detail__close { top: 18px; right: 18px; background: rgba(8,8,8,0.5); backdrop-filter: blur(8px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cursor {
     animation: none;
+  }
+
+  .team-roster-view--leaving .roster-card,
+  .team-roster-view--returning .roster-card,
+  .team-roster-view--leaving .team-eyebrow,
+  .team-roster-view--returning .team-eyebrow,
+  .artist-detail--detail,
+  .artist-detail--closing {
+    animation-duration: 1ms;
   }
 }

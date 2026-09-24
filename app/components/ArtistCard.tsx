@@ -4,15 +4,26 @@ import { platformIcons } from "./icons";
 import yolobunPortrait from "../media/yolobun.jpg";
 import nianPortrait from "../media/nian.jpg";
 
-export default function ArtistCard({ artist }: { artist: Artist }) {
+type ArtistCardProps = {
+  artist: Artist;
+  index: number;
+  onSelect: () => void;
+};
+
+export default function ArtistCard({ artist, index, onSelect }: ArtistCardProps) {
   return (
-    <div className="roster-card" style={{ borderRadius: 16, border: "1px solid rgba(255,255,255,0.1)", background: "#111", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+    <article
+      className="roster-card"
+      style={{ "--card-index": index } as React.CSSProperties}
+    >
+      <button className="roster-card__trigger" type="button" onClick={onSelect} aria-label={`View ${artist.name}`} />
       <div style={{ flex: "1 1 0", minHeight: 0, position: "relative", background: "#1a1a1a", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
         {artist.image ? (
           <Image
             src={artist.name === "nian" ? nianPortrait : yolobunPortrait}
             alt={`${artist.name} photo`}
             fill
+            sizes="(min-width: 960px) 300px, 82vw"
             style={{ objectFit: "cover", objectPosition: artist.name === "yolobun" ? "center center" : "center top" }}
             draggable={false}
             priority
@@ -55,6 +66,6 @@ export default function ArtistCard({ artist }: { artist: Artist }) {
           ))}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
