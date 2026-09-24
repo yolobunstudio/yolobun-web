@@ -50,7 +50,7 @@ export default function Home() {
         style={{
           position: "relative", height: "100dvh", overflowY: "scroll",
           scrollSnapType: "y proximity", scrollBehavior: "smooth",
-          background: "#000", color: "#fff",
+          background: "#070707", color: "rgba(232,228,220,0.9)",
           fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
           WebkitFontSmoothing: "antialiased",
         }}

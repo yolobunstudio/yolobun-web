@@ -2,6 +2,9 @@
 
 :root {
   color-scheme: dark;
+  --paint-white: rgba(232, 228, 220, 0.9);
+  --paint-white-soft: rgba(232, 228, 220, 0.62);
+  --paint-white-muted: rgba(232, 228, 220, 0.42);
 }
 
 html,
@@ -11,9 +14,74 @@ body {
 
 body {
   min-width: 320px;
-  background: #000;
-  color: #fff;
+  background: #070707;
+  color: var(--paint-white);
   overflow: hidden;
+}
+
+.hero-wordmark {
+  display: grid;
+  gap: clamp(12px, 1.8vw, 24px);
+  margin: 0;
+  color: rgba(255, 255, 255, 0.94);
+  font-family: "Arial Narrow", "HelveticaNeue-CondensedBold", "Helvetica Neue Condensed Bold", "Roboto Condensed", Impact, sans-serif;
+  font-size: clamp(60px, 11vw, 168px);
+  font-stretch: condensed;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  line-height: 0.86;
+  text-rendering: geometricPrecision;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.08), 0 18px 42px rgba(0, 0, 0, 0.45);
+}
+
+.hero-wordmark span {
+  display: block;
+  transform: scaleX(0.78);
+}
+
+.textured-section::before,
+.textured-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.textured-section::before {
+  opacity: 0.66;
+  background-image:
+    repeating-radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.06) 0 0.7px, transparent 0.8px 3px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.026) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 8px),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.045), transparent 28%, rgba(0, 0, 0, 0.2) 72%, transparent);
+  background-size: 130px 130px, 10px 10px, 12px 12px, 100% 100%;
+  mix-blend-mode: overlay;
+}
+
+.textured-section::after {
+  opacity: 0.5;
+  background:
+    radial-gradient(circle at 12% 72%, rgba(232, 228, 220, 0.035), transparent 30%),
+    radial-gradient(circle at 84% 62%, rgba(0, 0, 0, 0.34), transparent 34%),
+    radial-gradient(circle at 50% 110%, rgba(0, 0, 0, 0.48), transparent 58%);
+}
+
+.texture-flat::after { display: none; }
+
+.texture-flat::before {
+  opacity: 0.48;
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.013) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(27deg, rgba(255, 255, 255, 0.01) 0 1px, transparent 1px 11px);
+  background-size: 11px 11px, 13px 13px, 17px 17px;
+  mix-blend-mode: soft-light;
+}
+
+.textured-section > * {
+  position: relative;
+  z-index: 1;
 }
 
 ::-webkit-scrollbar {
@@ -53,7 +121,7 @@ body {
   position: relative;
   min-height: 100dvh;
   padding: 80px 0;
-  background: #0a0a0a;
+  background: #121212;
   scroll-snap-align: start;
   overflow: hidden;
   display: flex;
